@@ -1,0 +1,19 @@
+{
+  "name": "gplcart/gapi",
+  "type": "gplcart-module",
+  "description": "A helper module that integrates different Google APIs into your GPLCart site",
+  "keywords": [
+    "gplcart",
+    "ecommerce",
+    "shopping cart",
+    "gplcart module",
+    "php",
+    "google-api"
+  ],
+  "license": "GPL-3.0-or-later",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "google/apiclient": "2.2.1"
+  }
+}

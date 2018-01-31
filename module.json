@@ -1,0 +1,8 @@
+{
+  "name": "Google API",
+  "core": "1.x",
+  "author": "Iurii Makukh <gplcart.software@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "version": "1.0.0-dev",
+  "description": "A helper module that integrates different Google APIs into your GPLCart site"
+}
