@@ -13,7 +13,6 @@ use Exception;
 use gplcart\core\Config;
 use gplcart\core\Library;
 use gplcart\core\Container;
-use UnexpectedValueException;
 
 /**
  * Main class for Google API module
@@ -51,10 +50,8 @@ class Main
     public function hookLibraryList(array &$libraries)
     {
         $libraries['gapi'] = array(
-            'name' => /* @text */
-                'Google API',
-            'description' => /* @text */
-                'A PHP client library for accessing Google APIs',
+            'name' => 'Google API', // @text
+            'description' => 'A PHP client library for accessing Google APIs', // @text
             'type' => 'php',
             'module' => 'gapi',
             'url' => 'https://github.com/google/google-api-php-client',
@@ -122,7 +119,9 @@ class Main
     public function hookRouteList(array &$routes)
     {
         $routes['admin/report/gapi'] = array(
-            'menu' => array('admin' => 'Google API credentials'),
+            'menu' => array(
+                'admin' => 'Google API credentials' // @text
+            ),
             'access' => 'module_gapi_credential',
             'handlers' => array(
                 'controller' => array('gplcart\\modules\\gapi\\controllers\\Credential', 'listCredential')
@@ -150,10 +149,10 @@ class Main
      */
     public function hookUserRolePermissions(array &$permissions)
     {
-        $permissions['module_gapi_credential'] = /* @text */'Google API credential: access';
-        $permissions['module_gapi_credential_add'] = /* @text */'Google API credential: add';
-        $permissions['module_gapi_credential_edit'] = /* @text */'Google API credential: edit';
-        $permissions['module_gapi_credential_delete'] = /* @text */'Google API credential: delete';
+        $permissions['module_gapi_credential'] = 'Google API credential: access'; // @text
+        $permissions['module_gapi_credential_add'] = 'Google API credential: add'; // @text
+        $permissions['module_gapi_credential_edit'] = 'Google API credential: edit'; // @text
+        $permissions['module_gapi_credential_delete'] = 'Google API credential: delete'; // @text
     }
 
     /**
@@ -179,82 +178,52 @@ class Main
     /**
      * Returns Google Client object
      * @param array $config
+     * @param null|int $credential_id
      * @return \Google_Client
      */
-    public function getGoogleClient(array $config = array())
+    public function getGoogleClient(array $config = array(), $credential_id)
     {
-        $this->library->load('gapi');
-
-        if (!class_exists('Google_Client')) {
-            throw new UnexpectedValueException('Class \Google_Client not found');
-        }
-
-        $client = new \Google_Client;
-
-        foreach ($config as $key => $value) {
-            $method = "set$key";
-            if (is_callable(array($client, $method))) {
-                call_user_func_array(array($client, $method), $value);
-            }
-        }
-
-        return $client;
+        return $this->getApiModel()->getClient($config, $credential_id);
     }
 
     /**
      * Returns a Google service class instance
      * @param string $service_name
      * @param \Google_Client $client
-     * @return object
-     * @throws UnexpectedValueException
+     * @return object \Google_Service_SERVICE-NAME
      */
     public function getGoogleService($service_name, \Google_Client $client)
     {
-        $this->library->load('gapi');
-
-        $class = "Google_Service_$service_name";
-
-        if (!class_exists($class)) {
-            throw new UnexpectedValueException("Class $class not found");
-        }
-
-        return new $class($client);
+        return $this->getApiModel()->getService($service_name, $client);
     }
 
     /**
      * Returns an array of Google service names supported by the library
-     * @throws UnexpectedValueException
      */
     public function getGoogleServiceNames()
     {
-        $dir = __DIR__ . '/vendor/google/apiclient-services/src/Google/Service';
-
-        if (!is_dir($dir) || !is_readable($dir)) {
-            throw new UnexpectedValueException("Cannot read directory $dir");
-        }
-
-        $this->library->load('gapi');
-
-        $names = array();
-        foreach (glob("$dir/*.php") as $file) {
-            $name = pathinfo($file, PATHINFO_FILENAME);
-            $class = "Google_Service_$name";
-            if (class_exists($class) && $class instanceof \Google_Service) {
-                $names[] = $name;
-            }
-        }
-
-        return $names;
+        return $this->getApiModel()->getServiceNames();
     }
 
     /**
-     * Returns the credential model instance
+     * Returns the Credential model instance
      * @return \gplcart\modules\gapi\models\Credential
      */
     protected function getCredentialModel()
     {
         /** @var \gplcart\modules\gapi\models\Credential $instance */
         $instance = Container::get('gplcart\\modules\\gapi\\models\\Credential');
+        return $instance;
+    }
+
+    /**
+     * Returns the API model instance
+     * @return \gplcart\modules\gapi\models\Api
+     */
+    protected function getApiModel()
+    {
+        /** @var \gplcart\modules\gapi\models\Api $instance */
+        $instance = Container::get('gplcart\\modules\\gapi\\models\\Api');
         return $instance;
     }
 
@@ -271,6 +240,7 @@ class Main
                     'name' => array('type' => 'varchar', 'length' => 255, 'not_null' => true),
                     'type' => array('type' => 'varchar', 'length' => 255, 'not_null' => true),
                     'data' => array('type' => 'blob', 'not_null' => true, 'serialize' => true),
+                    'modified' => array('type' => 'int', 'length' => 10, 'not_null' => true, 'default' => 0),
                     'credential_id' => array('type' => 'int', 'length' => 10, 'auto_increment' => true, 'primary' => true)
                 )
             )

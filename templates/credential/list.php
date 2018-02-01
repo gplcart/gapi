@@ -52,6 +52,9 @@
         <th>
           <a href="<?php echo $sort_created; ?>"><?php echo $this->text('Created'); ?> <i class="fa fa-sort"></i></a>
         </th>
+        <th>
+          <a href="<?php echo $sort_modified; ?>"><?php echo $this->text('Modified'); ?> <i class="fa fa-sort"></i></a>
+        </th>
         <th></th>
       </tr>
     </thead>
@@ -71,6 +74,9 @@
             <?php } ?>
         <td class="middle">
           <?php echo $this->date($credential['created']); ?>
+        </td>
+        <td class="middle">
+            <?php echo $this->date($credential['modified']); ?>
         </td>
         <td class="middle">
           <ul class="list-inline">

@@ -84,7 +84,7 @@ class Credential implements CrudInterface
         }
 
         $allowed_order = array('asc', 'desc');
-        $allowed_sort = array('name', 'credential_id', 'created', 'type');
+        $allowed_sort = array('name', 'credential_id', 'created', 'modified', 'type');
 
         if (isset($options['sort'])
             && in_array($options['sort'], $allowed_sort)
@@ -116,6 +116,7 @@ class Credential implements CrudInterface
      */
     public function add(array $data)
     {
+        $data['created'] = $data['modified'] = GC_TIME;
         return $this->db->insert('module_gapi_credential', $data);
     }
 
@@ -163,6 +164,7 @@ class Credential implements CrudInterface
      */
     public function update($id, array $data)
     {
+        $data['modified'] = GC_TIME;
         return (bool) $this->db->update('module_gapi_credential', $data, array('credential_id' => $id));
     }
 

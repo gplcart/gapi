@@ -210,7 +210,6 @@ class Credential extends BackendController
         }
 
         $this->setSubmitted('credential');
-
         $this->validateElement(array('name' => $this->text('Name')), 'length', array(1, 255));
         $this->validateElement(array('data.id' => $this->text('Client ID')), 'length', array(1, 255));
         $this->validateElement(array('data.secret' => $this->text('Client secret')), 'length', array(1, 255));
@@ -230,7 +229,6 @@ class Credential extends BackendController
 
         $this->setSubmitted('credential');
         $this->validateElement(array('name' => $this->text('Name')), 'length', array(1, 255));
-
         $this->validateFileUploadCredential();
 
         return !$this->hasErrors();
@@ -290,20 +288,37 @@ class Credential extends BackendController
      */
     protected function saveCredential()
     {
-        $submitted = $this->getSubmitted();
-
-        // Update
         if (isset($this->data_credential['credential_id'])) {
-            $this->controlAccess('module_gapi_credential_edit');
-            if ($this->credential->update($this->data_credential['credential_id'], $submitted)) {
-                $this->redirect('admin/report/gapi', $this->text('Credential has been updated'), 'success');
-            }
-            $this->redirect('', $this->text('Credential has not been updated'), 'warning');
+            $this->updateSubmittedCredential();
+        } else {
+            $this->addSubmittedCredential();
+        }
+    }
+
+    /**
+     * Updates a submitted credential
+     */
+    protected function updateSubmittedCredential()
+    {
+        $this->controlAccess('module_gapi_credential_edit');
+
+        if ($this->credential->update($this->data_credential['credential_id'], $this->getSubmitted())) {
+            $this->redirect('admin/report/gapi', $this->text('Credential has been updated'), 'success');
         }
 
-        // Add
+        $this->redirect('', $this->text('Credential has not been updated'), 'warning');
+    }
+
+    /**
+     * Adds a submitted credential
+     */
+    protected function addSubmittedCredential()
+    {
         $this->controlAccess('module_gapi_credential_add');
+
+        $submitted = $this->getSubmitted();
         $submitted['type'] = $this->data_type;
+
         if ($this->credential->add($submitted)) {
             $this->redirect('admin/report/gapi', $this->text('Credential has been added'), 'success');
         }
@@ -317,10 +332,14 @@ class Credential extends BackendController
     protected function submitDeleteCredential()
     {
         if ($this->isPosted('delete') && isset($this->data_credential['credential_id'])) {
+
             $this->controlAccess('module_gapi_credential_delete');
-            if ($this->credential->callHandler($this->data_credential['type'], 'delete', array($this->data_credential['credential_id']))) {
+
+            if ($this->credential->callHandler($this->data_credential['type'], 'delete', array(
+                $this->data_credential['credential_id']))) {
                 $this->redirect('admin/report/gapi', $this->text('Credential has been deleted'), 'success');
             }
+
             $this->redirect('', $this->text('Credential has not been deleted'), 'warning');
         }
     }
@@ -355,7 +374,8 @@ class Credential extends BackendController
         foreach ($selected as $id) {
             if ($action === 'delete' && $this->access('module_gapi_credential_delete')) {
                 $credential = $this->credential->get($id);
-                $deleted += (int) $this->credential->callHandler($credential['type'], 'delete', array($credential['credential_id']));
+                $deleted += (int) $this->credential->callHandler($credential['type'], 'delete', array(
+                    $credential['credential_id']));
             }
         }
 
@@ -370,7 +390,7 @@ class Credential extends BackendController
      */
     protected function setFilterListCredential()
     {
-        $this->setFilter(array('created', 'name', 'credential_id', 'type'));
+        $this->setFilter(array('created', 'modified', 'name', 'credential_id', 'type'));
     }
 
     /**
