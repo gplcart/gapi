@@ -12,6 +12,7 @@ namespace gplcart\modules\gapi\models;
 use gplcart\core\Library;
 use RuntimeException;
 use OutOfRangeException;
+use gplcart\core\exceptions\Dependency as DependencyException;
 use gplcart\modules\gapi\models\Credential as ModuleGapiCredentialModel;
 
 /**
@@ -44,49 +45,35 @@ class Api
 
     /**
      * Returns Google Client object
-     * @param array $config
      * @param null|int $credential_id
+     * @param bool $use_own_certificate
      * @return \Google_Client
-     * @throws RuntimeException
+     * @throws DependencyException
      * @throws OutOfRangeException
      */
-    public function getClient(array $config = array(), $credential_id = null)
+    public function getClient($credential_id = null, $use_own_certificate = true)
     {
-        if (isset($credential_id)) {
-
-            $credential = $this->credential->get($credential_id);
-
-            if (empty($credential['data']['file'])) {
-                throw new OutOfRangeException('Credential file path is empty');
-            }
-
-            $config += array('setAuthConfig' => gplcart_path_absolute($credential['data']['file']));
-        }
-
         $this->library->load('gapi');
 
         if (!class_exists('Google_Client')) {
-            throw new RuntimeException('Class \Google_Client not found');
+            throw new DependencyException('Class \Google_Client not found');
         }
 
         $client = new \Google_Client;
 
-        if (empty($config)) {
-            return $client;
+        if ($use_own_certificate) {
+            $http = new \GuzzleHttp\Client(array('verify' => __DIR__ . '/../certificates/cacert.pem'));
+            $client->setHttpClient($http);
         }
 
-        foreach ($config as $method => $args) {
-
-            if (!is_callable(array($client, $method))) {
-                continue;
+        if (isset($credential_id)) {
+            $credential = $this->credential->get($credential_id);
+            if (empty($credential['data']['file'])) {
+                throw new OutOfRangeException('Credential file path is empty');
             }
-
-            if (!is_array($args)) {
-                $args = array($args);
-            }
-
-            call_user_func_array(array($client, $method), $args);
+            $client->setAuthConfig(gplcart_file_absolute($credential['data']['file']));
         }
+
 
         return $client;
     }
@@ -96,7 +83,7 @@ class Api
      * @param string $service_name
      * @param \Google_Client $client
      * @return object
-     * @throws RuntimeException
+     * @throws DependencyException
      */
     public function getService($service_name, \Google_Client $client)
     {
@@ -105,7 +92,7 @@ class Api
         $class = "Google_Service_$service_name";
 
         if (!class_exists($class)) {
-            throw new RuntimeException("Class $class not found");
+            throw new DependencyException("Class $class not found");
         }
 
         return new $class($client);

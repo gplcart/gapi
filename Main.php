@@ -177,13 +177,13 @@ class Main
 
     /**
      * Returns Google Client object
-     * @param array $config
      * @param null|int $credential_id
+     * @param bool $use_own_certificate
      * @return \Google_Client
      */
-    public function getGoogleClient(array $config = array(), $credential_id)
+    public function getGoogleClient($credential_id = null, $use_own_certificate = true)
     {
-        return $this->getApiModel()->getClient($config, $credential_id);
+        return $this->getApiModel()->getClient($credential_id, $use_own_certificate);
     }
 
     /**
