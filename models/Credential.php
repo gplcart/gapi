@@ -52,7 +52,7 @@ class Credential implements CrudInterface
 
     /**
      * Loads a credential
-     * @param int|array|string $id
+     * @param int $id
      * @return array
      */
     public function get($id)
