@@ -10,10 +10,11 @@
 namespace gplcart\modules\gapi\models;
 
 use gplcart\core\Library;
-use RuntimeException;
-use OutOfRangeException;
-use gplcart\core\exceptions\Dependency as DependencyException;
 use gplcart\modules\gapi\models\Credential as ModuleGapiCredentialModel;
+use GuzzleHttp\Client;
+use LogicException;
+use OutOfBoundsException;
+use RuntimeException;
 
 /**
  * Manages basic behaviors and data related Google API methods
@@ -48,29 +49,32 @@ class Api
      * @param null|int $credential_id
      * @param bool $use_own_certificate
      * @return \Google_Client
-     * @throws DependencyException
-     * @throws OutOfRangeException
+     * @throws LogicException
+     * @throws OutOfBoundsException
      */
     public function getClient($credential_id = null, $use_own_certificate = true)
     {
         $this->library->load('gapi');
 
         if (!class_exists('Google_Client')) {
-            throw new DependencyException('Class \Google_Client not found');
+            throw new LogicException('Class \Google_Client not found');
         }
 
         $client = new \Google_Client;
 
         if ($use_own_certificate) {
-            $http = new \GuzzleHttp\Client(array('verify' => __DIR__ . '/../certificates/cacert.pem'));
+            $http = new Client(array('verify' => __DIR__ . '/../certificates/cacert.pem'));
             $client->setHttpClient($http);
         }
 
         if (isset($credential_id)) {
+
             $credential = $this->credential->get($credential_id);
+
             if (empty($credential['data']['file'])) {
-                throw new OutOfRangeException('Credential file path is empty');
+                throw new OutOfBoundsException('Credential file path is empty');
             }
+
             $client->setAuthConfig(gplcart_file_absolute($credential['data']['file']));
         }
 
@@ -83,7 +87,7 @@ class Api
      * @param string $service_name
      * @param \Google_Client $client
      * @return object
-     * @throws DependencyException
+     * @throws LogicException
      */
     public function getService($service_name, \Google_Client $client)
     {
@@ -92,7 +96,7 @@ class Api
         $class = "Google_Service_$service_name";
 
         if (!class_exists($class)) {
-            throw new DependencyException("Class $class not found");
+            throw new LogicException("Class $class not found");
         }
 
         return new $class($client);
