@@ -34,7 +34,7 @@
 </div>
 <?php } ?>
 <div class="table-responsive">
-  <table class="table backups">
+  <table class="table">
     <thead>
       <tr>
         <th>
@@ -68,10 +68,11 @@
         <td class="middle"><?php echo $this->e($credential['name']); ?></td>
         <td class="middle">
             <?php if(isset($handlers[$credential['type']]['name'])) {  ?>
-            <?php echo $this->e($handlers[$credential['type']]['name']); ?></td>
+            <?php echo $this->e($handlers[$credential['type']]['name']); ?>
             <?php } else { ?>
                 <?php echo $this->text('Unknown'); ?>
             <?php } ?>
+        </td>
         <td class="middle">
           <?php echo $this->date($credential['created']); ?>
         </td>
