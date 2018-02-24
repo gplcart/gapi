@@ -11,8 +11,8 @@ namespace gplcart\modules\gapi;
 
 use Exception;
 use gplcart\core\Config;
-use gplcart\core\Library;
 use gplcart\core\Container;
+use gplcart\core\Library;
 
 /**
  * Main class for Google API module

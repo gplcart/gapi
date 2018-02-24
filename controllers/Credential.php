@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package Backup
+ * @package Google API
  * @author Iurii Makukh <gplcart.software@gmail.com>
  * @copyright Copyright (c) 2015, Iurii Makukh
  * @license https://www.gnu.org/licenses/gpl.html GNU/GPLv3
@@ -9,15 +9,14 @@
 
 namespace gplcart\modules\gapi\controllers;
 
-use Exception;
-use gplcart\core\models\FileTransfer as FileTransferModel;
-use gplcart\modules\gapi\models\Credential as ModuleGapiCredentialModel;
-use gplcart\core\controllers\backend\Controller as BackendController;
+use gplcart\core\controllers\backend\Controller;
+use gplcart\core\models\FileTransfer;
+use gplcart\modules\gapi\models\Credential as CredentialModel;
 
 /**
  * Handles incoming requests and outputs data related to Google API credentials
  */
-class Credential extends BackendController
+class Credential extends Controller
 {
 
     /**
@@ -51,10 +50,10 @@ class Credential extends BackendController
     protected $data_type;
 
     /**
-     * @param ModuleGapiCredentialModel $credential
-     * @param FileTransferModel $file_transfer
+     * @param CredentialModel $credential
+     * @param FileTransfer $file_transfer
      */
-    public function __construct(ModuleGapiCredentialModel $credential, FileTransferModel $file_transfer)
+    public function __construct(CredentialModel $credential, FileTransfer $file_transfer)
     {
         parent::__construct();
 
@@ -124,7 +123,6 @@ class Credential extends BackendController
     public function editCredential($credential_id)
     {
         $this->setCredential($credential_id);
-
         $this->setTitleEditCredential();
         $this->setBreadcrumbEditCredential();
 
@@ -353,7 +351,6 @@ class Credential extends BackendController
         $this->actionListCredential();
         $this->setTitleListCredential();
         $this->setBreadcrumbListCredential();
-
         $this->setFilterListCredential();
         $this->setPagerListCredential();
 
