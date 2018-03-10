@@ -56,13 +56,8 @@ class Main
             'module' => 'gapi',
             'url' => 'https://github.com/google/google-api-php-client',
             'download' => 'https://github.com/google/google-api-php-client/releases/download/v2.2.1/google-api-php-client-2.2.1_PHP54.zip',
-            'version_source' => array(
-                'file' => 'vendor/google/apiclient/src/Google/Client.php',
-                'pattern' => '/LIBVER(?:.*)"(.*)"/',
-            ),
-            'files' => array(
-                'vendor/autoload.php',
-            )
+            'version' => '2.2.1',
+            'vendor' => 'google/apiclient'
         );
     }
 
